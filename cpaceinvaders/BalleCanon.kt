@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 
-class BalleCanon (var view: CanonView, val cible: Cible) {
+class BalleCanon (var view: CanonView, val cible: Cible, val canon: Canon) {
     var canonball = PointF()
     var canonballVitesse = 0f
     var canonballVitesseX = 0f
@@ -14,10 +14,10 @@ class BalleCanon (var view: CanonView, val cible: Cible) {
     var canonballRadius = 0f
     var canonballPaint = Paint()
     init {
-        canonballPaint.color = Color.RED
+        canonballPaint.color = Color.GREEN
     }
     fun launch(angle: Double) {
-        canonball.x = canonballRadius + view.screenWidth/2f
+        canonball.x = canonballRadius + view.screenWidth/2f +canon.pos
         canonball.y = view.screenHeight -10
         canonballVitesseX=(canonballVitesse*Math.sin(angle)).toFloat()
         canonballVitesseY=(-canonballVitesse*Math.cos(angle)).toFloat()
@@ -33,7 +33,7 @@ class BalleCanon (var view: CanonView, val cible: Cible) {
     }
 
     fun update(interval: Double) {
-        if (canonballOnScreen) {
+        if (true) {
             canonball.x += (interval * canonballVitesseX).toFloat()
             canonball.y += (interval * canonballVitesseY).toFloat()
             // Si elle sorte de l'écran

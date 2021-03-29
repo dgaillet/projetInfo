@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Color.CYAN
 import android.graphics.Paint
 import android.graphics.Point
 import android.os.Bundle
@@ -39,14 +40,14 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
 
     val canon = Canon(0f, 0f, 0f, 0f, this)
     val cible = Cible(0f, 0f, 0f, 0f, 0f, this)
-    val balle = BalleCanon(this, cible)
+    val balle = BalleCanon(this, cible, canon)
 
 
     init {
         backgroundPaint.color = Color.WHITE
         textPaint.textSize = screenWidth/20
         textPaint.color = Color.DKGRAY
-        timeLeft = 10.0
+        timeLeft = 1000.0
     }
     fun pause() {
         drawing = false
@@ -134,8 +135,8 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         var touchPoint = Point(event.x.toInt(), event.y.toInt())
         val centerMinusY = screenHeight - touchPoint.y
         var angle = 0.0
-        if (centerMinusY != 0.0f)
-            angle = Math.atan((touchPoint.x - screenWidth/2).toDouble()/ centerMinusY)
+        //if (centerMinusY != 0.0f)
+            //angle = Math.atan((touchPoint.x - screenWidth/2 -canon.pos).toDouble()/ centerMinusY)
         //if (touchPoint.y > screenHeight / 2)
            // angle += Math.PI
         canon.align(angle)
@@ -144,7 +145,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
 
     fun newGame() {
         cible.resetCible()
-        timeLeft = 10.0
+        timeLeft = 100000.0
         balle.resetCanonBall()
 
         shotsFired = 0
@@ -165,13 +166,13 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         canon.canonBaseRadius = (h / 18f)
         canon.canonLongueur = (w / 8f)
         canon.largeur = (w / 24f)
-        canon.setFinCanon(h / 2f)
+        canon.setFinCanon(w/2f,h -10f )
+        canon.canonPaint.color = Color.CYAN
 
         balle.canonballRadius = (w/36f)
-        balle.canonballVitesse = (w*3/2f)
+        balle.canonballVitesse = (w*3/1f)
         balle.launch(0.0)
-
-
+        
         cible.width = (w / 24f)
         cible.cibleDistance= (w*7 / 8f)
         cible.cibleDebut = (h / 8f)
