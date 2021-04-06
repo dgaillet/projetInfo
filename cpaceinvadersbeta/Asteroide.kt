@@ -6,22 +6,26 @@ import android.graphics.Paint
 import android.graphics.RectF
 import androidx.core.graphics.component1
 import androidx.core.graphics.component2
+import java.util.*
 
-class Asteroide(x1 : Float,y1 : Float, x2 : Float, y2 : Float) {
-    var r = RectF(x1,y1,x2,y2)
-    val paint = Paint()
+class Asteroide(x: Float, y: Float, diametre: Float) : Balle(x, y, diametre) {
+
     var asteroideOnScreen = true
+    override var dy: Double = 0.1 + (( random.nextInt(10))/10).toDouble()
 
-    fun draw(canvas: Canvas){
-        paint.color = Color.DKGRAY
 
-    }
-    fun gereBalle(b:Balle, p:Asteroide){
+    fun gereBalle(b:Projectile, p:Asteroide){
         if(RectF.intersects(p.r,b.r)){
-            b.ballOnScreen = false
+            b.projOnScreen = false
             p.asteroideOnScreen = false
         }
 
     }
 
+
+
 }
+
+
+
+

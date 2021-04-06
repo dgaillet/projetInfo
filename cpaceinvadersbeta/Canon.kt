@@ -11,10 +11,11 @@ class Canon (var canonBaseRadius: Float, var canonLongueur: Float, hauteur: Floa
     var finCanon = PointF((view.screenWidth/2).toFloat(), (-canonLongueur + view.screenHeight).toFloat())
     fun draw(canvas: Canvas) {
         canonPaint.strokeWidth = largeur * 1.5f
-        canvas.drawLine(view.screenWidth/2 + pos, view.screenHeight, finCanon.x + pos,
-            finCanon.y, canonPaint)
-        canvas.drawCircle(view.screenWidth/2 + pos, view.screenHeight, canonBaseRadius,
+        canvas.drawLine(view.screenWidth/2 + pos, view.screenHeight - 300, finCanon.x + pos,
+            finCanon.y -450, canonPaint)
+        canvas.drawCircle(view.screenWidth/2 + pos, view.screenHeight - 300, canonBaseRadius,
             canonPaint)
+
     }
     fun setFinCanon(canonLongueur: Float, hauteur: Float) {
         finCanon.set(canonLongueur, hauteur)

@@ -17,7 +17,7 @@ import androidx.core.graphics.component2
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import java.nio.file.Files.size
-import java.util.ArrayList
+import java.util.*
 
 class CanonView @JvmOverloads constructor (context: Context, attributes: AttributeSet? = null, defStyleAttr: Int = 0): SurfaceView(context, attributes,defStyleAttr), SurfaceHolder.Callback, Runnable {
     lateinit var canvas: Canvas
@@ -28,21 +28,19 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     val HIT_REWARD = 3
     var gameOver : Boolean = false
 
-    var lesBalles   = ArrayList<Balle>()
+    val random = Random()
+
+    var lesBalles   = ArrayList<Projectile>()
     var lesAsteroides = ArrayList<Asteroide>()
-
-
+    
     var screenWidth = 0f
     var screenHeight = 0f
     var drawing = false
     lateinit var thread: Thread
 
     var shotsFired : Int = 0
-
     val activity = context as FragmentActivity
-
     var totalElapsedTime = 0.0
-
 
     val canon = Canon(0f, 0f, 0f, 0f, this)
 
@@ -71,11 +69,16 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             gameOver = true
             showGameOverDialog(R.string.lose)
         }
-
         for(b in lesBalles){
             b.move(lesAsteroides,lesBalles)
             if(b.r.component2()<0f){
-                b.ballOnScreen = false
+                b.projOnScreen = false
+            }
+        }
+        for (p in lesAsteroides){
+            p.move(lesAsteroides,lesBalles)
+            if(p.r.component2()>screenHeight){
+                p.asteroideOnScreen = false
             }
         }
         var lengthBall : Int = lesBalles.size
@@ -86,7 +89,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         if(!lesBalles.isEmpty()) {
             var chevre : Int = 0
             for (i in sellaBsel) {
-                if (!i.ballOnScreen) {
+                if (!i.projOnScreen) {
                     lesBalles.removeAt(lengthBall-1-chevre)
                 }
                 chevre++
@@ -103,7 +106,6 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                 hurluberlu++
             }
         }
-
     }
 
     fun gameOver(){
@@ -140,8 +142,6 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         )
     }
 
-
-
     fun reduceTimeLeft(){
         timeLeft-=MISS_PENALTY
     }
@@ -174,7 +174,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         canon.canonPaint.color = Color.CYAN
 
         for (b in lesBalles){
-            b.ballRadius = (w/36f)
+            //b.ballRadius = (w/36f)
             b.ballVitesse = (w*3/1f)
         }
 
@@ -184,11 +184,22 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
 
     override fun run() {
         var previousFrameTime = System.currentTimeMillis()
+        var check = 0.0
+        val interval = 3.0
         while (drawing) {
             val currentTime = System.currentTimeMillis()
+
             val elapsedTimeMS:Double = (currentTime-previousFrameTime).toDouble()
             totalElapsedTime+=elapsedTimeMS/1000.0
             updatePositions(elapsedTimeMS)
+            if(check>interval && lesAsteroides.size<5){
+                var taille = 50f+random.nextInt(100)
+                lesAsteroides.add(Asteroide(random.nextInt((screenWidth- taille).toInt()).toFloat() ,(random.nextInt(20)).toFloat(),taille))
+                check=0.0
+            }
+            else check+=elapsedTimeMS/1000.0
+
+
             draw()
             previousFrameTime = currentTime
         }
@@ -204,7 +215,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             canvas.drawText("${lesBalles.size} balles actives", 30f, 100f, textPaint)
             canvas.drawText("${lesAsteroides.size} asteroides actifs", 30f, 150f, textPaint)
             for (b in lesBalles){
-                if(b.ballOnScreen){
+                if(b.projOnScreen){
                     b.draw(canvas)
                 }
             }
