@@ -1,24 +1,35 @@
 package com.example.cpaceinvadersbeta
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PointF
+import android.graphics.*
 
-class Canon (var canonBaseRadius: Float, var canonLongueur: Float, hauteur: Float, var largeur: Float, val view: CanonView) {
+class Canon ( var largeur: Float, val view: CanonView) {
     val canonPaint = Paint()
-    var pos = 0f
 
-    var finCanon = PointF((view.screenWidth/2).toFloat(), (-canonLongueur + view.screenHeight).toFloat())
-    fun draw(canvas: Canvas) {
-        canonPaint.strokeWidth = largeur * 1.5f
-        canvas.drawLine(view.screenWidth/2 + pos, view.screenHeight - 300, finCanon.x + pos,
-            finCanon.y -450, canonPaint)
-        canvas.drawCircle(view.screenWidth/2 + pos, view.screenHeight - 300, canonBaseRadius,
-            canonPaint)
+
+
+    val r = RectF(view.screenWidth+510   ,view.screenHeight+1600,view.screenWidth+580 , view.screenHeight+1750)
+    //val r = RectF(view.screenWidth/2   ,view.screenHeight - 200,view.screenWidth/2  + 400 , view.screenHeight -100)
+    //val r = RectF(view.screenWidth/2, view.screenHeight-200, view.screenWidth/2+70,view.screenHeight-350)
+
+
+
+    fun draw(canvas: Canvas?) {
+        //canonPaint.strokeWidth = largeur * 1.5f
+
+        //canvas?.drawLine(view.screenWidth/2 + pos, view.screenHeight - 200, view.screenWidth/2 + pos +400, view.screenHeight -100, canonPaint)
+
+        //canvas?.drawCircle(view.screenWidth/2+pos, view.screenHeight-200, 200f, canonPaint)
+        //canvas?.drawRect(r,canonPaint)
+
+        canvas?.drawOval(r, canonPaint)
+
 
     }
-    fun setFinCanon(canonLongueur: Float, hauteur: Float) {
-        finCanon.set(canonLongueur, hauteur)
+    fun reset(){
+        //r = RectF(view.screenWidth+510   ,view.screenHeight+1600,view.screenWidth+580 , view.screenHeight+1750)
+        //r = RectF(view.screenWidth/2, view.screenHeight-200, view.screenWidth/2+70,view.screenHeight-350)
+
     }
 
 }
+

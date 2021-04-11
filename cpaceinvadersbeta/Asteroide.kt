@@ -11,7 +11,7 @@ import java.util.*
 class Asteroide(x: Float, y: Float, diametre: Float) : Balle(x, y, diametre) {
 
     var asteroideOnScreen = true
-    override var dy: Double = 0.1 + (( random.nextInt(10))/10).toDouble()
+    override var dy: Double = 0.3 + (( random.nextInt(10))/10).toDouble()
 
 
     fun gereBalle(b:Projectile, p:Asteroide){

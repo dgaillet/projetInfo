@@ -6,11 +6,12 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import androidx.core.graphics.component2
+import androidx.core.graphics.component3
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchListener {
     lateinit var canonView: CanonView
-    //lateinit var canon: BalleCanon
     var shotsFired = 0
 
 
@@ -31,8 +32,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
 
             R.id.shoot ->{
                 if(canonView.lesBalles.size<9){
-                    val x = canonView.screenWidth/2 + canonView.canon.pos -15
-                    val y = canonView.canon.finCanon.y -450 -15
+                    val x = canonView.canon.r.centerX() -15
+                    val y = canonView.screenHeight  -200
                     canonView.lesBalles.add(Projectile(x.toFloat(), y.toFloat(), 30f))
                     shotsFired++
                 }
@@ -45,12 +46,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         left.setOnTouchListener(this)
-        //left.setOnClickListener(this)
         right.setOnTouchListener(this)
-        //right.setOnClickListener(this)
         shoot.setOnClickListener(this)
-        shoot.setOnTouchListener(this)
-
 
         canonView = findViewById<CanonView>(R.id.vMain)
 
@@ -59,19 +56,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     override fun onTouch(v: View?,e: MotionEvent): Boolean {
 
         val action = e.action
+
         if (action == MotionEvent.ACTION_DOWN
-                || action == MotionEvent.ACTION_MOVE) {
+                || action == MotionEvent.ACTION_MOVE ) {
             when(v?.id) {
                 R.id.left -> {
-                    canonView.canon.pos -= 25f
+                    canonView.canon.r.offset(-20f,0f)
+
                 }
                 R.id.right -> {
-                    canonView.canon.pos += 25f
+                    canonView.canon.r.offset(20f,0f)
                 }
 
             }
         }
+
         return v?.onTouchEvent(e) ?: true
+
     }
 
 

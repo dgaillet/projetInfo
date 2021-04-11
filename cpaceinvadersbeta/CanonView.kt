@@ -4,10 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Point
+import android.graphics.*
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -24,9 +21,10 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     val backgroundPaint = Paint()
     val textPaint = Paint()
     var timeLeft = 0.0
-    val MISS_PENALTY = 2
-    val HIT_REWARD = 3
     var gameOver : Boolean = false
+    var hearts = 3
+    var hits = 0
+
 
     val random = Random()
 
@@ -38,14 +36,14 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     var drawing = false
     lateinit var thread: Thread
 
-    var shotsFired : Int = 0
     val activity = context as FragmentActivity
     var totalElapsedTime = 0.0
 
-    val canon = Canon(0f, 0f, 0f, 0f, this)
+    val canon = Canon(0f,this)
 
 
     init {
+
         backgroundPaint.color = Color.WHITE
         textPaint.textSize = screenWidth/20
         textPaint.color = Color.DKGRAY
@@ -64,7 +62,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     fun updatePositions(elapsedTimeMS: Double) {
         val interval = elapsedTimeMS / 1000.0
         timeLeft-=interval
-        if(timeLeft<=0.0){
+        if(hearts<=0){
             drawing = false
             gameOver = true
             showGameOverDialog(R.string.lose)
@@ -79,6 +77,11 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             p.move(lesAsteroides,lesBalles)
             if(p.r.component2()>screenHeight){
                 p.asteroideOnScreen = false
+                hearts--
+            }
+            if(RectF.intersects(p.r,canon.r)){
+                hearts=0
+
             }
         }
         var lengthBall : Int = lesBalles.size
@@ -120,7 +123,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
                 builder.setTitle(resources.getString(messageId))
-                builder.setMessage("Nombre de tirs : {shotsFired} Temps écoulé : {totalElapsedTime}")
+                builder.setMessage("Astéroïdes détruits : $hits")
 
                 builder.setPositiveButton("Recommencer", DialogInterface.OnClickListener { _, _->newGame()})
                 return builder.create()
@@ -142,17 +145,15 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         )
     }
 
-    fun reduceTimeLeft(){
-        timeLeft-=MISS_PENALTY
-    }
-    fun increaseTimeLeft(){
-        timeLeft+=HIT_REWARD
-    }
+
 
     fun newGame() {
         timeLeft = 100000.0
-
-        shotsFired = 0
+        hits = 0
+        hearts=3
+        lesAsteroides.clear()
+        lesBalles.clear()
+        canon.reset()
         totalElapsedTime = 0.0
         drawing = true
         if (gameOver) {
@@ -167,14 +168,11 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         super.onSizeChanged(w, h, oldw, oldh)
         screenWidth = w.toFloat()
         screenHeight = h.toFloat()
-        canon.canonBaseRadius = (h / 18f)
-        canon.canonLongueur = (w / 8f)
-        canon.largeur = (w / 24f)
-        canon.setFinCanon(w/2f,h -10f )
-        canon.canonPaint.color = Color.CYAN
+        canon.largeur = (w / 12f)
+
+        canon.canonPaint.color = Color.BLACK
 
         for (b in lesBalles){
-            //b.ballRadius = (w/36f)
             b.ballVitesse = (w*3/1f)
         }
 
@@ -185,7 +183,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     override fun run() {
         var previousFrameTime = System.currentTimeMillis()
         var check = 0.0
-        val interval = 3.0
+        val interval = 2.0
         while (drawing) {
             val currentTime = System.currentTimeMillis()
 
@@ -209,11 +207,12 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         if (holder.surface.isValid) {
             canvas = holder.lockCanvas()
             canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), backgroundPaint)
-            canon.draw(canvas)
+
             val formatted = String.format("%.2f",timeLeft)
             canvas.drawText("Il reste $formatted secondes.",30f,50f,textPaint)
             canvas.drawText("${lesBalles.size} balles actives", 30f, 100f, textPaint)
             canvas.drawText("${lesAsteroides.size} asteroides actifs", 30f, 150f, textPaint)
+            canvas.drawText("${hearts} vie(s)",30f,200f, textPaint)
             for (b in lesBalles){
                 if(b.projOnScreen){
                     b.draw(canvas)
@@ -225,6 +224,9 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                     p.draw(canvas)
                 }
             }
+            canon.draw(canvas)
+
+
 
             holder.unlockCanvasAndPost(canvas)
         }
