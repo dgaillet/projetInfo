@@ -7,14 +7,15 @@ import android.content.DialogInterface
 import android.graphics.*
 import android.os.Bundle
 import android.util.AttributeSet
-import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.graphics.component2
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import java.nio.file.Files.size
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.*
+import kotlin.system.exitProcess
 
 class CanonView @JvmOverloads constructor (context: Context, attributes: AttributeSet? = null, defStyleAttr: Int = 0): SurfaceView(context, attributes,defStyleAttr), SurfaceHolder.Callback, Runnable {
     lateinit var canvas: Canvas
@@ -23,7 +24,10 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     var timeLeft = 0.0
     var gameOver : Boolean = false
     var hearts = 3
-    var hits = 0
+    var hits = 0f
+    var shots = 0f
+    var heartslose = 0
+
 
 
     val random = Random()
@@ -39,12 +43,12 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     val activity = context as FragmentActivity
     var totalElapsedTime = 0.0
 
-    val canon = Canon(0f,this)
+    val canon = Canon(this)
 
 
     init {
 
-        backgroundPaint.color = Color.WHITE
+        backgroundPaint.color = Color.argb(255,25,25,60)
         textPaint.textSize = screenWidth/20
         textPaint.color = Color.DKGRAY
         timeLeft = 1000.0
@@ -78,37 +82,41 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             if(p.r.component2()>screenHeight){
                 p.asteroideOnScreen = false
                 hearts--
+                heartslose++
             }
             if(RectF.intersects(p.r,canon.r)){
                 hearts=0
 
             }
         }
-        var lengthBall : Int = lesBalles.size
-        var lengthAsteroide : Int = lesAsteroides.size
 
-        var sellaBsel = lesBalles.reversed()
+                var lengthBall: Int = lesBalles.size
+                var lengthAsteroide: Int = lesAsteroides.size
 
-        if(!lesBalles.isEmpty()) {
-            var chevre : Int = 0
-            for (i in sellaBsel) {
-                if (!i.projOnScreen) {
-                    lesBalles.removeAt(lengthBall-1-chevre)
+                var sellaBsel = lesBalles.reversed()
+
+                if (!lesBalles.isEmpty()) {
+                    var chevre: Int = 0
+                    for (i in sellaBsel) {
+                        if (!i.projOnScreen) {
+                            lesBalles.removeAt(lengthBall - 1 - chevre)
+                        }
+                        chevre++
+                    }
                 }
-                chevre++
-            }
-        }
 
-        var sedioretsAsel = lesAsteroides.reversed()
-        if(!lesAsteroides.isEmpty()) {
-            var hurluberlu : Int = 0
-            for (i in sedioretsAsel) {
-                if (!i.asteroideOnScreen) {
-                    lesAsteroides.removeAt(lengthAsteroide-1-hurluberlu)
+                var sedioretsAsel = lesAsteroides.reversed()
+                if (!lesAsteroides.isEmpty()) {
+                    var hurluberlu: Int = 0
+                    for (i in sedioretsAsel) {
+                        if (!i.asteroideOnScreen) {
+                            lesAsteroides.removeAt(lengthAsteroide - 1 - hurluberlu)
+                            hits++
+                        }
+                        hurluberlu++
+                    }
                 }
-                hurluberlu++
-            }
-        }
+
     }
 
     fun gameOver(){
@@ -123,9 +131,11 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
                 builder.setTitle(resources.getString(messageId))
-                builder.setMessage("Astéroïdes détruits : $hits")
+                builder.setMessage("Astéroïdes détruits : ${(hits-heartslose).toInt()} \n Précision : ${((hits-heartslose)/shots)*100}% \n tirs : ${shots.toInt()}")
 
                 builder.setPositiveButton("Recommencer", DialogInterface.OnClickListener { _, _->newGame()})
+                builder.setNegativeButton("quitter", DialogInterface.OnClickListener { _, _-> exitProcess(-1)})
+
                 return builder.create()
             }
         }
@@ -149,11 +159,13 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
 
     fun newGame() {
         timeLeft = 100000.0
-        hits = 0
+        hits = 0f
         hearts=3
+        shots=0f
+        heartslose=0
         lesAsteroides.clear()
         lesBalles.clear()
-        canon.reset()
+        //canon.reset()
         totalElapsedTime = 0.0
         drawing = true
         if (gameOver) {
@@ -168,9 +180,9 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         super.onSizeChanged(w, h, oldw, oldh)
         screenWidth = w.toFloat()
         screenHeight = h.toFloat()
-        canon.largeur = (w / 12f)
 
-        canon.canonPaint.color = Color.BLACK
+        canon.canonPaint.color = Color.LTGRAY
+        canon.hublotPaint.color = Color.BLUE
 
         for (b in lesBalles){
             b.ballVitesse = (w*3/1f)
@@ -183,20 +195,20 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     override fun run() {
         var previousFrameTime = System.currentTimeMillis()
         var check = 0.0
-        val interval = 2.0
+        val interval = 0.8
         while (drawing) {
             val currentTime = System.currentTimeMillis()
 
-            val elapsedTimeMS:Double = (currentTime-previousFrameTime).toDouble()
-            totalElapsedTime+=elapsedTimeMS/1000.0
+            val elapsedTimeMS: Double = (currentTime - previousFrameTime).toDouble()
+            totalElapsedTime += elapsedTimeMS / 1000.0
             updatePositions(elapsedTimeMS)
-            if(check>interval && lesAsteroides.size<5){
-                var taille = 50f+random.nextInt(100)
-                lesAsteroides.add(Asteroide(random.nextInt((screenWidth- taille).toInt()).toFloat() ,(random.nextInt(20)).toFloat(),taille))
-                check=0.0
-            }
-            else check+=elapsedTimeMS/1000.0
 
+            updatePositions(elapsedTimeMS)
+            if (check > interval && lesAsteroides.size < 5) {
+                var taille = 70f + random.nextInt(100)
+                lesAsteroides.add(Asteroide(random.nextInt((screenWidth - taille).toInt()).toFloat(), (random.nextInt(20)).toFloat(), taille))
+                check = 0.0
+            } else check += elapsedTimeMS / 1000.0
 
             draw()
             previousFrameTime = currentTime

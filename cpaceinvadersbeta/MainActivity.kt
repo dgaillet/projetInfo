@@ -9,14 +9,12 @@ import android.widget.Button
 import androidx.core.graphics.component2
 import androidx.core.graphics.component3
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchListener {
     lateinit var canonView: CanonView
-    var shotsFired = 0
-
-
-
-
+    var size : Float = 30f
 
     override fun onPause() {
         super.onPause()
@@ -33,9 +31,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
             R.id.shoot ->{
                 if(canonView.lesBalles.size<9){
                     val x = canonView.canon.r.centerX() -15
-                    val y = canonView.screenHeight  -200
-                    canonView.lesBalles.add(Projectile(x.toFloat(), y.toFloat(), 30f))
-                    shotsFired++
+                    val y = canonView.canon.r.centerY()
+                    canonView.lesBalles.add(Projectile(x.toFloat(), y.toFloat(), size))
+                    canonView.shots++
                 }
 
             }
@@ -54,32 +52,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     }
 
     override fun onTouch(v: View?,e: MotionEvent): Boolean {
+            val action = e.action
 
-        val action = e.action
-
-        if (action == MotionEvent.ACTION_DOWN
-                || action == MotionEvent.ACTION_MOVE ) {
-            when(v?.id) {
-                R.id.left -> {
-                    canonView.canon.r.offset(-20f,0f)
-
+                if (action == MotionEvent.ACTION_DOWN
+                    /*|| action == MotionEvent.ACTION_MOVE*/
+                ) {
+                    when (v?.id) {
+                        R.id.left -> {
+                            canonView.canon.r.offset(-110f, 0f)
+                        }
+                        R.id.right -> {
+                            canonView.canon.r.offset(110f, 0f)
+                        }
+                    }
                 }
-                R.id.right -> {
-                    canonView.canon.r.offset(20f,0f)
-                }
 
-            }
-        }
-
-        return v?.onTouchEvent(e) ?: true
+            return v?.onTouchEvent(e) ?: true
 
     }
 
 
-
 }
-
-
 
 
 fun AlertDialog.Builder.setMessage(string: String, shotsFired: String, totalElapsedTime: String) {
