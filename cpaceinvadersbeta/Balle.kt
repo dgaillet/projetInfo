@@ -3,37 +3,28 @@ package com.example.cpaceinvadersbeta
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.view.View
 import androidx.core.graphics.component2
 import java.util.*
 
 
-abstract class Balle(x : Float, y : Float, var diametre : Float){
+abstract class Balle(x : Float, y : Float, var diametre : Float,lvl : Int){
 
 
     val random = Random()
-    var ballOnScreen = true
     var ballVitesse = 0f
     val paint = Paint()
+    var r = RectF(x,y,x+diametre, y+diametre)
 
-
-    val r = RectF(x, y, x + diametre, y + diametre)
-    //var color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256))
-    var showText = false
     abstract var dy : Double
-
-
 
     open fun draw(canvas: Canvas?){
         canvas?.drawOval(r, paint)
-
-
     }
 
-    open fun move(lesAsteroides: ArrayList<Asteroide>, lesBalles: ArrayList<Projectile>){
+    open fun move(lesAsteroides: ArrayList<Asteroide>, lesBalles: ArrayList<Projectile>, lvl: Int){
         r.offset(0f, (40.0*dy).toFloat())
-
-
     }
 
 }
