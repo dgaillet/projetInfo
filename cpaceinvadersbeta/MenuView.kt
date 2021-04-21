@@ -25,7 +25,8 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
 
     var menuPaint = Paint()
     var drawing = true
-    var sound = false
+    var sound = true
+    var music = 0
 
     var screenWidth = 0f
     var screenHeight = 0f
@@ -34,23 +35,24 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
     var difficulty  = 0
     val activity = context as FragmentActivity
 
-    
+
     fun pause() {
         drawing = false
         thread.join()
     }
+
     fun resume() {
         drawing = true
         thread = Thread(this)
         thread.start()
     }
+
     override fun run(){
         while(drawing){
             draw()
         }
-
-
     }
+
     fun draw(){
         if (holder.surface.isValid) {
             canvas2 = holder.lockCanvas()
@@ -67,11 +69,8 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
             canvas2.drawBitmap(cercle, Rect(0, 0, 630, 500), Rect(400,250,800,550), menuPaint)
 
             holder.unlockCanvasAndPost(canvas2)
-
         }
-
     }
-
 
 
     fun difficulti(){
@@ -111,11 +110,12 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
     fun soundEff(){
          class Sound: DialogFragment() {
             lateinit var dialog: AlertDialog
-            var ind : Int = -1
+            var ind : Int = 0
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
                 val arrayDiff = arrayOf("On","Off")
                 builder.setTitle("Effets sonores")
+
                 builder.setSingleChoiceItems(arrayDiff,ind, DialogInterface.OnClickListener{ dialog, which ->
                     ind = which
                     if(ind==0){
@@ -125,6 +125,7 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
                         sound=false
                     }
                 })
+
                 builder.setPositiveButton("ok") {dialog, which ->
                     dialog.dismiss()
                 }
@@ -150,13 +151,88 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
     }
 
 
+    fun music(){
+        class Sound: DialogFragment() {
+            lateinit var dialog: AlertDialog
+            var ind : Int = 0
+            override fun onCreateDialog(bundle: Bundle?): Dialog {
+                val builder = AlertDialog.Builder(getActivity())
+                val arrayDiff = arrayOf("off","daft punk","Bowie","Elton","Tryhard","funérailles du C$")
+                builder.setTitle("Musique (écouteurs fortement recommandés)")
+
+                builder.setSingleChoiceItems(arrayDiff,ind, DialogInterface.OnClickListener{ dialog, which ->
+                    ind = which
+                    music=ind
+                })
+
+                builder.setPositiveButton("ok") {dialog, which ->
+                    dialog.dismiss()
+                }
+
+                return builder.create()
+                dialog.show()
+            }
+        }
+        activity.runOnUiThread(
+                Runnable {
+                    val ft = activity.supportFragmentManager.beginTransaction()
+                    val prev = activity.supportFragmentManager.findFragmentByTag("dialog")
+                    if (prev != null) {
+                        ft.remove(prev)
+                    }
+                    ft.addToBackStack(null)
+                    val son = Sound()
+                    son.setCancelable(false)
+                    son.show(ft,"dialog")
+                }
+
+        )
+    }
+
+
+    fun soundSet(){
+        class Sound: DialogFragment() {
+            lateinit var dialog: AlertDialog
+            override fun onCreateDialog(bundle: Bundle?): Dialog {
+                val builder = AlertDialog.Builder(getActivity())
+                val arrayDiff = arrayOf("On","Off")
+                builder.setTitle("Effets sonores")
+
+                builder.setNegativeButton("Effets sonores", DialogInterface.OnClickListener { _, _->soundEff()})
+                builder.setPositiveButton("Musique", DialogInterface.OnClickListener { _, _->music()})
+                builder.setNeutralButton("ok") {dialog, which ->
+                    dialog.dismiss()
+                }
+
+                return builder.create()
+                dialog.show()
+            }
+        }
+        activity.runOnUiThread(
+                Runnable {
+                    val ft = activity.supportFragmentManager.beginTransaction()
+                    val prev = activity.supportFragmentManager.findFragmentByTag("dialog")
+                    if (prev != null) {
+                        ft.remove(prev)
+                    }
+                    ft.addToBackStack(null)
+                    val son = Sound()
+                    son.setCancelable(false)
+                    son.show(ft,"dialog")
+                }
+
+        )
+    }
+
+
+
     fun credit(){
         class Credit: DialogFragment() {
             lateinit var dialog: AlertDialog
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
                 builder.setTitle("Crédits")
-                builder.setMessage("CROHIN Guillaume\n\nGAILLET Damien\n\nNASCIMENTO Nathan")
+                builder.setMessage("CROHIN Guillaume\n\nGAILLET Damien\n\nNASCIMENTO Nathan\n\nStack Overflow")
                 builder.setPositiveButton("ok") {dialog, which ->
                     dialog.dismiss()
                 }

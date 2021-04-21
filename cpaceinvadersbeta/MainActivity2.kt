@@ -48,11 +48,13 @@ class MainActivity2 : AppCompatActivity(), View.OnClickListener {
             R.id.start ->{
                 var truc = menuView.difficulty
                 var chose = menuView.sound
+                var bidule = menuView.music
                 playSound(menuView)
 
                 val monIntent : Intent =  Intent(this@MainActivity2,MainActivity::class.java)
                 monIntent.putExtra("com.example.cpaceinvadersbeta.difff",truc)
                 monIntent.putExtra("com.example.cpaceinvadersbeta.sound",chose)
+                monIntent.putExtra("com.example.cpaceinvadersbeta.music",bidule)
 
                 startActivity(monIntent)
             }
@@ -60,7 +62,7 @@ class MainActivity2 : AppCompatActivity(), View.OnClickListener {
                 menuView.difficulti()
             }
             R.id.soundEffect ->{
-                menuView.soundEff()
+                menuView.soundSet()
             }
             R.id.cred ->{
                 menuView.credit()

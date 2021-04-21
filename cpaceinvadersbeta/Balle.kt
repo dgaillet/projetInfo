@@ -13,7 +13,6 @@ abstract class Balle(x : Float, y : Float, var diametre : Float,lvl : Int){
 
 
     val random = Random()
-    var ballVitesse = 0f
     val paint = Paint()
     var r = RectF(x,y,x+diametre, y+diametre)
 

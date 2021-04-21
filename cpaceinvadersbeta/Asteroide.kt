@@ -38,7 +38,7 @@ class Asteroide(x: Float, y: Float, diametre: Float, resources: Resources, lvl: 
         super.draw(canvas)
         paint.color = textColor
 
-        canvas?.drawBitmap(cs, Rect(0, -100, 600, 450), Rect((r.left+0.1*diametre).toInt(),
+        canvas?.drawBitmap(cs, Rect(0, -100, 650, 450), Rect((r.left+0.1*diametre).toInt(),
                 (r.top+0.1*diametre).toInt(), (r.right+0.2*diametre).toInt(), (r.bottom-0.1*diametre).toInt()), paint)
     }
 
