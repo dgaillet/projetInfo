@@ -109,9 +109,6 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener, View.OnTouchLi
                 else if(musicOn==4){
                     canonView.mMediaPlayer = MediaPlayer.create(this@MainActivity, R.raw.doom)
                 }
-                else if(musicOn==5){
-                    canonView.mMediaPlayer = MediaPlayer.create(this@MainActivity, R.raw.funerailles)
-                }
 
                 canonView.mMediaPlayer!!.setVolume(1f,1f)
 

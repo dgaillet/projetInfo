@@ -62,7 +62,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     var musicCheck = false
 
     val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-    var highScore = sharedPref.getFloat("score", 0f)
+    var highScore = sharedPref.getFloat(difficulty.toString(), 0f)
 
     val ballesIterator = lesBalles.iterator()
     val asteroidesIterator = lesAsteroides.iterator()
@@ -81,6 +81,8 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     }
 
     fun resume() {
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        highScore = sharedPref.getFloat(difficulty.toString(), 0f)
         drawing = true
         thread = Thread(this)
         thread.start()
@@ -94,10 +96,15 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         }
     }
 
-    fun playSound(view: View) {
-        //if (mMediaPlayer == null) {
-        mMediaPlayer!!.start()
-        //}
+    fun playSound() {
+        if(musicCheck) {
+            //if (mMediaPlayer == null) {
+                //mMediaPlayer = MediaPlayer.create(context, R.raw.music)
+                //mMediaPlayer!!.setVolume(1f,1f)
+                //mMediaPlayer!!.isLooping = true
+                mMediaPlayer!!.start()
+            //} else mMediaPlayer!!.start()
+        }
     }
 
     fun updatePositions(elapsedTimeMS: Double) {
@@ -109,19 +116,15 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             drawing = false
             gameOver = true
             val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-            val defaultValue = 0f
-            highScore = sharedPref.getFloat("score", defaultValue)
+            highScore = sharedPref.getFloat(difficulty.toString(), 0f)
             val score = hits
             if(score>highScore){
                 with (sharedPref.edit()) {
-                    putFloat("score", score)
+                    putFloat(difficulty.toString(), score)
                     apply()
                 }
-                highScore = sharedPref.getFloat("score", defaultValue)
+                highScore = sharedPref.getFloat(difficulty.toString(), 0f)
             }
-
-
-
 
             showGameOverDialog(R.string.lose)
         }
@@ -173,35 +176,13 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                     hurluberlu++
                 }
             }
-        }catch (e: ConcurrentModificationException) { }
-
-
-
-
-
-
-
-        /*try {
-            if (!lesBalles.isEmpty()) {
-                for (e in ballesIterator) {
-                    if (!e.projOnScreen) {
-                        ballesIterator.remove()
-                    }
-
-                }
-            }
-            if (!lesAsteroides.isEmpty()) {
-                for (e in asteroidesIterator) {
-                    if (!e.asteroideOnScreen) {
-                        asteroidesIterator.remove()
-                    }
-
-                }
-            }
-
         }catch (e: ConcurrentModificationException) {
 
-            }*/
+        }//catch (e : ){ }
+
+
+
+
 
     }
 
@@ -245,7 +226,9 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                 builder.setSingleChoiceItems(arrayDiff,difficulty,DialogInterface.OnClickListener{dialog, which ->
                     difficulty = which
 
+
                 })
+
                 builder.setPositiveButton("ok") {dialog, which ->
                     dialog.dismiss()
                 }
@@ -269,6 +252,8 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     }
 
     fun newGame() {
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        highScore = sharedPref.getFloat(difficulty.toString(), 0f)
         hits = 0f
         hearts=3
         shots=0f
@@ -278,15 +263,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         drawing = true
         if (gameOver) {
             gameOver = false
-            /*if(musicCheck) {
-                if (mMediaPlayer == null) {
-                    mMediaPlayer = MediaPlayer.create(context, R.raw.music)
-                    mMediaPlayer!!.setVolume(1f,1f)
-                    mMediaPlayer!!.isLooping = true
-                    mMediaPlayer!!.start()
-                } else mMediaPlayer!!.start()
-            }**/
-            playSound(this)
+            playSound()
             thread = Thread(this)
             thread.start()
         }
@@ -309,6 +286,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         var previousFrameTime = System.currentTimeMillis()
         var check = 0.0
         val interval = 0.8
+
         while (drawing) {
             val currentTime = System.currentTimeMillis()
 
@@ -339,7 +317,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             canvas = holder.lockCanvas()
             canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), backgroundPaint)
             canvas.drawText("${hearts} vie(s)",30f,50f, textPaint)
-            canvas.drawText("Score : ${hits} (Best : ${highScore} ) ",30f,100f, textPaint)
+            canvas.drawText("Score : ${hits.toInt()} (Best : ${highScore.toInt()} ) ",30f,100f, textPaint)
             canvas .drawText("${lesBalles.size} ${lesAsteroides.size}",30f,150f,textPaint)
             for (b in lesBalles){
                 if(b.projOnScreen){

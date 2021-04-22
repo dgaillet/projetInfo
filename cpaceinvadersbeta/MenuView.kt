@@ -157,7 +157,7 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
             var ind : Int = 0
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
-                val arrayDiff = arrayOf("off","daft punk","Bowie","Elton","Tryhard","funérailles du C$")
+                val arrayDiff = arrayOf("off","Daft Punk - Around the world","David Bowie - Starman","Elton John - Rocketman","Tryhard")
                 builder.setTitle("Musique (écouteurs fortement recommandés)")
 
                 builder.setSingleChoiceItems(arrayDiff,ind, DialogInterface.OnClickListener{ dialog, which ->
