@@ -14,13 +14,13 @@ class Canon(view: CanonView, resources: Resources) {
 
     fun draw(canvas: Canvas?) {
 
-        canvas?.drawOval(r, canonPaint)
+        canvas?.drawOval(r, canonPaint) //fuselage du vaisseau
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas?.drawOval(r.left +20, r.top +20, r.right -20, r.top +70, hublotPaint)
+            canvas?.drawOval(r.left +20, r.top +20, r.right -20, r.top +70, hublotPaint)//hublot du vaisseau
             canvas?.drawArc(r.left -10,r.top + 100,r.right + 10,r.bottom+40,0f,
-                    -180f,true,canonPaint)
+                    -180f,true,canonPaint)//ailerons du vaisseau
             canvas?.drawBitmap(cepeee,Rect(0,0,1000,1000),Rect((r.left +10).toInt(),
-                    (r.top +80).toInt(), (r.right ).toInt(), (r.top +150).toInt()), hublotPaint)
+                    (r.top +80).toInt(), (r.right ).toInt(), (r.top +150).toInt()), hublotPaint)//logo cp
 
         }
     }

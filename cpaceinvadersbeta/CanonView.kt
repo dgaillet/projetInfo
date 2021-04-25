@@ -64,8 +64,8 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
     var highScore = sharedPref.getFloat(difficulty.toString(), 0f)
 
-    val ballesIterator = lesBalles.iterator()
-    val asteroidesIterator = lesAsteroides.iterator()
+    //val ballesIterator = lesBalles.iterator()
+    //val asteroidesIterator = lesAsteroides.iterator()
 
 
     init {
@@ -88,31 +88,27 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         thread.start()
     }
 
-    fun stopSound(view: View) {
+    fun stopSong() {
+        //met la musique en pause jusqu'à ce que la fonction playSound() est appelée
         if (mMediaPlayer != null) {
             mMediaPlayer!!.pause()
-            //mMediaPlayer!!.release()
-            //mMediaPlayer = null
+
         }
     }
 
-    fun playSound() {
+    fun playSong() {
+        //lance la lecture de la musique
         if(musicCheck) {
-            //if (mMediaPlayer == null) {
-                //mMediaPlayer = MediaPlayer.create(context, R.raw.music)
-                //mMediaPlayer!!.setVolume(1f,1f)
-                //mMediaPlayer!!.isLooping = true
                 mMediaPlayer!!.start()
-            //} else mMediaPlayer!!.start()
         }
     }
 
     fun updatePositions(elapsedTimeMS: Double) {
-        val interval = elapsedTimeMS / 1000.0
+        //déplace les éléments, détecte la fin de partie
 
 
         if(hearts<=0){
-            stopSound(this)
+            stopSong()
             drawing = false
             gameOver = true
             val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
@@ -137,56 +133,72 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                     hits--
                 }
             }
+
             for (p in lesAsteroides){
+
                 p.move(lesAsteroides,lesBalles,difficulty)
+
                 if(p.r.component2()>screenHeight){
                     p.asteroideOnScreen = false
                     hearts--
                 }
+
                 if(RectF.intersects(p.r,canon.r)){
                     hearts=0
 
                 }
+
             }
         }catch (e : ConcurrentModificationException){}
 
         try{
-            var lengthBall: Int = lesBalles.size
-            var lengthAsteroide: Int = lesAsteroides.size
-            var sellaBsel = lesBalles.reversed()
-            if (!lesBalles.isEmpty()) {
-                var chevre: Int = 0
-                for (i in sellaBsel) {
-                    if (!i.projOnScreen) {
-                        lesBalles.removeAt(lengthBall - 1 - chevre)
-                    }
-                    chevre++
-                }
-            }
-            var sedioretsAsel = lesAsteroides.reversed()
-            if (!lesAsteroides.isEmpty()) {
-                var hurluberlu: Int = 0
-                for (i in sedioretsAsel) {
-                    if (!i.asteroideOnScreen) {
-                        lesAsteroides.removeAt(lengthAsteroide - 1 - hurluberlu)
-                        hits++
-
-
-                    }
-                    hurluberlu++
-                }
-            }
+            collectGarb()
         }catch (e: ConcurrentModificationException) {
 
-        }//catch (e : ){ }
+        }catch (e : ArrayIndexOutOfBoundsException){
 
-
-
+        }
 
 
     }
+    fun collectGarb(){
+        //supprime les objets inutilisés de leur liste
+
+        var lengthBall: Int = lesBalles.size
+        var lengthAsteroide: Int = lesAsteroides.size
+        var sellaBsel = lesBalles.reversed()
+
+        if (!lesBalles.isEmpty()) {
+            var chevre: Int = 0
+
+            for (i in sellaBsel) {
+
+                if (!i.projOnScreen) {
+                    lesBalles.removeAt(lengthBall - 1 - chevre)
+                }
+
+                chevre++
+            }
+        }
+        var sedioretsAsel = lesAsteroides.reversed()
+
+        if (!lesAsteroides.isEmpty()) {
+            var hurluberlu: Int = 0
+
+            for (i in sedioretsAsel) {
+
+                if (!i.asteroideOnScreen) {
+                    lesAsteroides.removeAt(lengthAsteroide - 1 - hurluberlu)
+                    hits++
+                }
+
+                hurluberlu++
+            }
+        }
+    }
 
     fun showGameOverDialog(messageId: Int) {
+        //affiche le score à la fin de la partie
         class GameResult: DialogFragment() {
             override fun onCreateDialog(bundle: Bundle?): Dialog {
                 val builder = AlertDialog.Builder(getActivity())
@@ -204,9 +216,11 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             Runnable {
                 val ft = activity.supportFragmentManager.beginTransaction()
                 val prev = activity.supportFragmentManager.findFragmentByTag("dialog")
+
                 if (prev != null) {
                     ft.remove(prev)
                 }
+
                 ft.addToBackStack(null)
                 val gameResult = GameResult()
                 gameResult.setCancelable(false)
@@ -217,6 +231,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     }
 
     fun difficulties(){
+        //permet de changer le niveau de difficulté sans devoir retourner dans le menu
         class Difficult: DialogFragment() {
             lateinit var dialog:AlertDialog
             override fun onCreateDialog(bundle: Bundle?): Dialog {
@@ -224,11 +239,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                 val arrayDiff = arrayOf("Fossil","Bleu","Fière Poil","Commitard","Vieux C*n")
                 builder.setTitle("Niveau de difficulté")
                 builder.setSingleChoiceItems(arrayDiff,difficulty,DialogInterface.OnClickListener{dialog, which ->
-                    difficulty = which
-
-
-                })
-
+                    difficulty = which})
                 builder.setPositiveButton("ok") {dialog, which ->
                     dialog.dismiss()
                 }
@@ -241,9 +252,11 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                 Runnable {
                     val ft = activity.supportFragmentManager.beginTransaction()
                     val prev = activity.supportFragmentManager.findFragmentByTag("dialog")
+
                     if (prev != null) {
                         ft.remove(prev)
                     }
+
                     ft.addToBackStack(null)
                     val diff = Difficult()
                     diff.setCancelable(false)
@@ -252,6 +265,7 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     }
 
     fun newGame() {
+        //remet certains paramètres à leur valeur initaile et relance une partie
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
         highScore = sharedPref.getFloat(difficulty.toString(), 0f)
         hits = 0f
@@ -261,12 +275,14 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
         lesBalles.clear()
         totalElapsedTime = 0.0
         drawing = true
+
         if (gameOver) {
             gameOver = false
-            playSound()
+            playSong()
             thread = Thread(this)
             thread.start()
         }
+
     }
 
     override fun onSizeChanged(w:Int, h:Int, oldw:Int, oldh:Int) {
@@ -283,22 +299,29 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
     }
 
     override fun run() {
+        //fonction réalisée en boucle tant que le thread associé est actif
         var previousFrameTime = System.currentTimeMillis()
         var check = 0.0
-        val interval = 0.8
+        //var checkBns= 0.0
+
 
         while (drawing) {
             val currentTime = System.currentTimeMillis()
-
             val elapsedTimeMS: Double = (currentTime - previousFrameTime).toDouble()
             totalElapsedTime += elapsedTimeMS / 1000.0
+            val interval = 1.0 - 0.005*totalElapsedTime
             updatePositions(elapsedTimeMS)
-            if (check > interval && lesAsteroides.size < 5) {
+
+            //if(checkBns>30){ }
+
+
+            if (check > interval && lesAsteroides.size < 8) {
                 var taille = 80f*(1+random.nextInt(4))
                 lesAsteroides.add(Asteroide(random.nextInt((screenWidth - taille).toInt()).toFloat(),
                         (random.nextInt(20)).toFloat(), taille, resources, difficulty))
                 check = 0.0
             } else check += elapsedTimeMS / 1000.0
+
             try{
                 draw()
             }catch (e : ConcurrentModificationException){
@@ -307,12 +330,12 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
                 holder.unlockCanvasAndPost(canvas)
             }
 
-
             previousFrameTime = currentTime
         }
     }
 
     fun draw() {
+        //dessine tout les éléments sur la surface de jeu
         if (holder.surface.isValid) {
             canvas = holder.lockCanvas()
             canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), backgroundPaint)
@@ -335,9 +358,6 @@ class CanonView @JvmOverloads constructor (context: Context, attributes: Attribu
             holder.unlockCanvasAndPost(canvas)
         }
     }
-
-
-
 
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}

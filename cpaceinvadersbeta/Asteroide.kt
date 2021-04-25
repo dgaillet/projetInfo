@@ -17,6 +17,7 @@ class Asteroide(x: Float, y: Float, diametre: Float, resources: Resources, lvl: 
 
 
     fun gereBalle(b:Projectile, p:Asteroide,lvl : Int){
+        //repère les collision entre les projectiles et les asteroides
         if(RectF.intersects(p.r,b.r)){
             b.projOnScreen = false
             if(p.diametre/80f<=1){

@@ -1,6 +1,5 @@
 package com.example.cpaceinvadersbeta
 
-import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.SoundPool
@@ -8,12 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import java.lang.Thread.sleep
 
 
@@ -63,7 +57,7 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener, View.OnTouchLi
                     if(sound){//si les bruits de tire sont souhaités, le bruit se produit
                         playSound(canonView)
                     }
-                    //sleep(80)//NECESSAIRE???
+                    sleep(10)
                 }
             }
         }
@@ -120,12 +114,11 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener, View.OnTouchLi
     }
 
     override fun onTouch(v: View?,e: MotionEvent): Boolean {
+        //déplace le vaisseau(canon) lorsque l'utilisateur appuie sur les boutons correspondants
             val action = e.action
 
-                if (action == MotionEvent.ACTION_DOWN
-                    /*|| action == MotionEvent.ACTION_MOVE*/
-                ) {
-                    when (v?.id) {
+                if (action == MotionEvent.ACTION_DOWN) {
+                    when(v?.id){
                         R.id.left -> {
                             canonView.canon.r.offset(-100f, 0f)
                         }
@@ -133,6 +126,7 @@ class MainActivity() : AppCompatActivity(), View.OnClickListener, View.OnTouchLi
                             canonView.canon.r.offset(100f, 0f)
                         }
                     }
+
                 }
 
             return v?.onTouchEvent(e) ?: true

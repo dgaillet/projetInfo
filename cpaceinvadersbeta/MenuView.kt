@@ -108,6 +108,7 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
 
 
     fun soundEff(){
+        //permet de désactiver les effets sonores lors du tire
          class Sound: DialogFragment() {
             lateinit var dialog: AlertDialog
             var ind : Int = 0
@@ -152,6 +153,7 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
 
 
     fun music(){
+        //spotify 2.0, permet de sélectionner la musique ou de la désactiver
         class Sound: DialogFragment() {
             lateinit var dialog: AlertDialog
             var ind : Int = 0
@@ -191,6 +193,7 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
 
 
     fun soundSet(){
+        //redirige vers les paramètres liés aux effets sonores ou aux musique
         class Sound: DialogFragment() {
             lateinit var dialog: AlertDialog
             override fun onCreateDialog(bundle: Bundle?): Dialog {
@@ -227,6 +230,7 @@ class MenuView @JvmOverloads constructor (context: Context, attributes: Attribut
 
 
     fun credit(){
+        //affiche les créateurs du jeu ( et stack overflow <3 )
         class Credit: DialogFragment() {
             lateinit var dialog: AlertDialog
             override fun onCreateDialog(bundle: Bundle?): Dialog {
